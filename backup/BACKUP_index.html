@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+    <style>
+        a {
+            cursor: pointer;
+        }
+    </style>
+    <title>Jukebox</title>
+</head>
+
+<body>
+    <div class="container">
+        <!--Nav Bar-->
+        <nav id="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01"
+                aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+                <a class="navbar-brand">Your Jukebox
+                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-collection-play-fill"
+                        fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M1.5 14.5A1.5 1.5 0 0 1 0 13V6a1.5 1.5 0 0 1 1.5-1.5h13A1.5 1.5 0 0 1 16 6v7a1.5 1.5 0 0 1-1.5 1.5h-13zm5.265-7.924A.5.5 0 0 0 6 7v5a.5.5 0 0 0 .765.424l4-2.5a.5.5 0 0 0 0-.848l-4-2.5zM2 3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 0-1h-11A.5.5 0 0 0 2 3zm2-2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7A.5.5 0 0 0 4 1z" />
+                    </svg>
+                </a>
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <li class="nav-item active">
+                        <div class="dropdown show">
+                            <a class="nav-link dropdown-toggle" id="currDevice" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                                Devices
+                            </a>
+                            <div id="deviceDrop" class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <!--Place Holder-->
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <img src="" style='width:40px; height:40px'>
+                <div id="currPlaying" class="nav-item pl-2" style="width: 200px;">
+                    <marquee scrollamount="3" width="200px">
+                        <a class="nav-link"></a>
+                    </marquee>
+                </div>
+                <div class="nav-item mr-sm-2">
+                    <a class="nav-link">
+                        <ion-icon id="skipBack" name="play-skip-back-outline" style="color: white; font-size: 20px;">
+                        </ion-icon>
+                    </a>
+                </div>
+                <div class="nav-item mr-sm-2">
+                    <a class="nav-link">
+                        <ion-icon id='playPauseBtn' name="" style="color: white; font-size: 25px;"></ion-icon>
+                    </a>
+                </div>
+                <div class="nav-item mr-sm-2">
+                    <a class="nav-link">
+                        <ion-icon id="skipForward" name="play-skip-forward-outline"
+                            style="color: white; font-size: 20px;">
+                        </ion-icon>
+                    </a>
+                </div>
+                <form class="form-inline my-2 my-lg-0">
+                    <input id="searchItem" class="form-control mr-sm-2" type="search" placeholder="Search"
+                        aria-label="Search" />
+                    <a id="addBtn" class="btn btn-outline-success my-2 my-sm-0">
+                        Add
+                    </a>
+                </form>
+            </div>
+        </nav>
+        <!--Song Table-->
+        <table id="songTbl" class="table table-hover table-conder">
+            <tr>
+                <th>Song</th>
+                <th>Artist</th>
+                <th>Requested By</th>
+            </tr>
+            <tr id="previouslyPlayedRow" class="table-dark">
+                <td>Previously Played</td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+
+    <!--jquery-->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/ionicons@5.1.2/dist/ionicons.js"></script>
+
+    <!--Firebase-->
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.19.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.19.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.19.0/firebase-auth.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyDuqbt9UjGjQbie1bUW-XSRsCrdD0dO010",
+            authDomain: "jukebox-d932d.firebaseapp.com",
+            databaseURL: "https://jukebox-d932d.firebaseio.com/",
+            projectId: "jukebox-d932d",
+            storageBucket: "jukebox-d932d.appspot.com",
+            messagingSenderId: "831237212121",
+            appId: "1:831237212121:web:61cb4cac1c030340287bc8",
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <!--Firebase-->
+
+    <!--Spotify-->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="main.js" type="module"></script>
+</body>
+
+</html>
