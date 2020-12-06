@@ -76,14 +76,6 @@ app.get("/login", function (req, res) {
     })
   );
 
-  // send access_token cookie
-  const cookieConfig = {
-    path: '/',
-    httpOnly: true,
-    secure: true
-  }
-
-  //res.cookie('testCookie', 'some value', cookieConfig);
   //response.send();
 });
 
@@ -148,14 +140,6 @@ app.get("/callback", (req, res) => {
             refresh_token: refresh_token,
             participants: null
           });
-
-
-          // Set admin privilege on the user corresponding to uid.
-
-          /* admin.auth().setCustomUserClaims(uid, { admin: true }).then(() => {
-            // The new custom claims will propagate to the user's ID token the
-            // next time a new one is issued.
-          }); */
 
           /* var addUserRequestOptions = {
 
@@ -332,6 +316,19 @@ app.post('/removeUserFromRoom', (req, res) => {
       console.log('failed: ' + error);
       res.send(error);
     });
+})
+
+app.post('/makeHost', (req, res) => {
+  uid = req.body.uid;
+  console.log(uid);
+  // Set admin privilege on the user corresponding to uid.
+
+  admin.auth().setCustomUserClaims(uid, { host: true }).then(() => {
+    // The new custom claims will propagate to the user's ID token the
+    // next time a new one is issued.
+  });
+
+  res.send();
 })
 
 //app.use("/", router);

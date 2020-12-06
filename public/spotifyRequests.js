@@ -1,5 +1,3 @@
-const { head } = require("request");
-
 //import { access_token, refresh_token } from './main.js';
 var access_token = ''; // Host's access-token
 var refresh_token = ''; // Host's refresh-token

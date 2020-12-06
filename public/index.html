@@ -57,6 +57,13 @@
       justify-content: center;
       align-items: center;
     }
+
+    #spotify-login {
+      cursor: pointer;
+    }
+    #logout {
+      cursor: pointer;
+    }
   </style>
 
 </head>
@@ -72,7 +79,8 @@
         <input type="text" class="form-input" name="nickname" placeholder="Nickname" required>
         <button type="button" id="next" class="btn btn-dark form-btn">Next</button>
         <button type="submit" id="join" class="btn btn-dark form-btn">Join</button>
-        <a id="spotify-login" href="/login">Create new room</a>
+        <a id="spotify-login">Create new room</a> | 
+        <a id="logout" onclick="firebase.auth().signOut()">Logout</a>
         <a id="obtain-new-token" hidden="true" class="btn btn-primary"></a>
       </div>
     </form>

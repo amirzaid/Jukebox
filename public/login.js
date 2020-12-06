@@ -27,20 +27,19 @@ $(function () {
     };
 
     var params = getHashParams();
-    //console.log(params);
 
     var params = getHashParams();
-    //var access_token = params.access_token,
-    //  refresh_token = params.refresh_token,
-    //  expires_in = params.expires_in,
-    //  error = params.error;
 
     const nickname = $('[name = nickname]').hide();
     const joinBtn = $('#join').hide();
     const roomId = $('[name = roomid]');
     const nextBtn = $('#next');
     const loader = $('.loader-wrapper').hide();
+    const logout = $('#logout').hide();
+    const spotifyBtn = $('#spotify-login');
     const room_hash_value = params.roomid;
+    var cookies = document.cookie;
+    var current_user = firebase.auth().currentUser;
 
     // A room is defined
     function hideRoomID() {
@@ -49,6 +48,69 @@ $(function () {
         joinBtn.show();
         nextBtn.hide();
     };
+
+    function map_cookies() {
+        cookies = document.cookie
+            .split(';')
+            .map(cookie => cookie.split('='))
+            .reduce((accumulator, [key, value]) =>
+                ({ ...accumulator, [key.trim()]: decodeURIComponent(value) }),
+                {});
+    }
+
+    // Redirect client if logged-in
+    firebase.auth().onAuthStateChanged(firebaseUser => {
+        if (firebaseUser) {
+            if (cookies) {
+                map_cookies();
+            }
+            console.log('cookies: ' + document.cookie);
+            current_user = firebaseUser;
+            console.log(firebaseUser)
+            logout.show();
+            alert('user already logged-in, should redirect here');
+            // Is host now
+            firebase.auth().currentUser.getIdTokenResult()
+                .then((idTokenResult) => {
+                    console.log(idTokenResult);
+                    // Confirm the user is a Host.
+                    if (!!idTokenResult.claims.host) {
+                        // Show admin UI.
+                        console.log('user is host');
+                        console.log(roomId);
+                    } else {
+                        // Show regular user UI.
+                        console.log('user is not a host');
+                    }
+                    //window.location = `http://localhost:5000/jukebox.html#roomid=${room_hash_value}`;
+                    hideRoomID();
+                    if (roomId.val() && nickname.val()) {
+                        //$('#login-form').submit();
+                        // reset cookies
+                        document.cookie = "roomid=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+                        document.cookie = "nickname=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+                        // set cookies
+                        document.cookie = `roomid=${roomId.val()}`;
+                        document.cookie = `nickname=${nickname.val()}`;
+                        console.log('cookies: ' + document.cookie);
+                        window.location = `http://localhost:5000/jukebox.html?roomid=${roomId.val()}&nickname=${nickname.val()}`;
+                    }
+                    else {
+                        if (cookies) {
+                            window.location = `http://localhost:5000/jukebox.html?roomid=${cookies.roomid}&nickname=${cookies.nickname}`;
+                        }
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+        else {
+            alert('user signed-out');
+            logout.hide();
+            spotifyBtn.show();
+        }
+    })
 
     nextBtn.on('click', () => {
         if (roomId.val() == '')
@@ -73,14 +135,40 @@ $(function () {
         }
     });
 
+    spotifyBtn.on('click', function (event) {
+        firebase.auth().signInAnonymously();
+        current_user = firebase.auth().currentUser;
+        // Wait for user to be logged in
+        setTimeout(() => {
+            if (current_user) {
+                console.log(current_user);
+                var uid = current_user.uid;
+                $.ajax({
+                    method: 'POST',
+                    url: '/makeHost',
+                    data: {
+                        'uid': uid
+                    },
+                    success: (response) => {
+                        console.log(current_user);
+                        console.log('makehost done');
+                        // Is host now
+                    }
+                })
+            }
+        }, 1000);
+        window.location.href = '/login';
+        //window.location.href = '/login';
+    })
+
     $('#login-form').on('submit', function (event) {
         event.preventDefault();
+        if (!current_user) {
+            firebase.auth().signInAnonymously();
+        }
         alert('logged-in');
-        firebase.auth().signInAnonymously();
-        /* firebase.auth().signInAnonymously().then(() => {
-            alert(firebase.auth().currentUser);
-        }) */;
-        return true;
+        console.log(current_user);
+        //return true;
     })
 
     //console.log(window.location.hash[0]);
@@ -89,34 +177,6 @@ $(function () {
         roomId.val(room_hash_value);
         hideRoomID();
     }
-
-    /* $('spotify-login').on('click', () => {
-        $.ajax({
-            method: 'GET',
-            url: '/login',
-            success: (response) => {
-                firebase.auth().signInAnonymously(); // Create host user
-                // Add host claim 
-                $.ajax({
-                    method: 'POST',
-                    url: '/addCustomClaim',
-                    data: {
-                        'uid': firebase.auth().currentUser
-                    }
-                })
-            }
-        })
-    }); */
-
-    //var hash = window.location.hash; // Get hash params
-    //var access_token = hash.substring(hash.indexOf('=') + 1, hash.indexOf('&')); // Get substring from = (after access token header) and up to & before refresh token header
-    //document.querySelector('#access-token').setAttribute('value', access_token); // Set access-token
-
-    //document.querySelector('#access-token').setAttribute('value', access_token); // Set access-token
-    //document.querySelector('#refresh-token').setAttribute('value', refresh_token); // Set refresh-token
-    //console.log(access_token);
-    //console.log(refresh_token);
-    //console.log(expires_in);
 
     // Obtain new access token
     document.getElementById('obtain-new-token').addEventListener('click', function () {
@@ -135,34 +195,4 @@ $(function () {
             //  });
         });
     }, false);
-
-    //(function () {
-    //  console.log('amir');
-    //
-    //  /**
-
-    //
-    //  var params = getHashParams();
-    //  var access_token = params.access_token,
-    //    refresh_token = params.refresh_token,
-    //    error = params.error;
-    //
-    //  console.log(refresh_token);
-    //
-    //  // Obtain new access token
-    //  document.getElementById('obtain-new-token').addEventListener('click', function () {
-    //    $.ajax({
-    //      url: '/refresh_token',
-    //      data: {
-    //        'refresh_token': refresh_token
-    //      }
-    //    }).done(function (data) {
-    //      access_token = data.access_token;
-    //      oauthPlaceholder.innerHTML = oauthTemplate({
-    //        access_token: access_token,
-    //        refresh_token: refresh_token
-    //      });
-    //    });
-    //  }, false);
-    //});
 })

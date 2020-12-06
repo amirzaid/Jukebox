@@ -1,7 +1,3 @@
-//import { response } from 'express';
-
-//const { head } = require("request");
-
 //import { checkIfPlaying, getDevices, recentlyPlayed, addTrackToQueue, PlayPausePlayer, skip } from './spotifyRequests.js';
 $(function () {
     // Your web app's Firebase configuration
@@ -57,6 +53,7 @@ $(function () {
         if (firebaseUser) { //Check if user logged in
             console.log('logged in');
             console.log(firebaseUser.uid)
+            console.log(roomid);
             // Add user to room's participants
             $.ajax({
                 method: 'POST',
