@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: content-box;
+        }
+
+        body {
+            background-color: cadetblue;
+            padding-top: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header {
+            font-size: 25px;
+            padding-bottom: 70px;
+        }
+
+        #container {
+            margin-top: 100px;
+            position: relative;
+
+        }
+
+        #artwork {
+            /* display: block; */
+            margin-left: auto;
+            margin-right: auto;
+            width: 70%;
+            box-shadow: 3px 3px 10px #000000;
+        }
+
+        .player {
+            padding-top: 20px;
+            letter-spacing: 40px;
+            font-size: 300%;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .track {
+            font-size: 20px;
+            padding-top: 30px;
+            display: flex;
+            flex-direction: column;
+            margin-left: 15%;
+            text-align: left;
+        }
+
+        .track #track-name {
+            font-weight: bold;
+        }
+
+        .track #artist-name {
+            color: lightgray;
+        }
+
+        .search-bar {
+            --size: 40px;
+            --bcolor: #2f3640;
+            display: block;
+            position: absolute;
+            left: 50%;
+            border-radius: 40px;
+            height: var(--size);
+            transform: translate(-50%);
+            transition: 0.4s;
+            background: var(--bcolor);
+            padding: 10px;
+            width: max-content;
+        }
+
+        .search-bar:hover>.input {
+            width: 240px;
+            /* padding: 0.6px; */
+        }
+
+        .search-bar:hover>.submit {
+            /* background: white; */
+            background: var(--bcolor);
+        }
+
+        .search-bar .input {
+            border: none;
+            background: none;
+            outline: none;
+            /* float: left; */
+            padding: 0;
+            color: white;
+            font-size: 16px;
+            transition: 0.4s;
+            line-height: var(--size);
+            width: 0px;
+        }
+
+        .search-bar .submit {
+            /* color: #e84118; */
+            color: white;
+            float: right;
+            width: var(--size);
+            height: var(--size);
+            border-radius: 50%;
+            background: var(--bcolor);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.4s;
+        }
+    </style>
+</head>
+
+<body ontouchstart="">
+    <div class="search-bar">
+        <input type="text" class="input" placeholder="Search..." aria-label="search" />
+        <a class="submit">
+            <ion-icon name="search"></ion-icon>
+        </a>
+    </div>
+
+    <!-- Search Bar -->
+    <div id="container">
+        <!-- Artwork Visual -->
+        <img id="artwork"
+            src="http://jackiehawkins.com/wp-content/uploads/2014/03/Screen-Shot-2014-03-04-at-15.54.39.png" />
+        <!-- Title -->
+        <div class="track">
+            <!-- <marquee> -->
+            <p id="track-name">Track name</p>
+            <p id="artist-name">Artist</p>
+            <!-- </marquee> -->
+        </div>
+        <!-- Player -->
+        <div class="player">
+            <!-- Skip Backward -->
+            <svg id="Backward" width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-skip-backward-fill"
+                fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M.5 3.5A.5.5 0 0 0 0 4v8a.5.5 0 0 0 1 0V4a.5.5 0 0 0-.5-.5z" />
+                <path
+                    d="M.904 8.697l6.363 3.692c.54.313 1.233-.066 1.233-.697V4.308c0-.63-.692-1.01-1.233-.696L.904 7.304a.802.802 0 0 0 0 1.393z" />
+                <path
+                    d="M8.404 8.697l6.363 3.692c.54.313 1.233-.066 1.233-.697V4.308c0-.63-.693-1.01-1.233-.696L8.404 7.304a.802.802 0 0 0 0 1.393z" />
+            </svg>
+            <!-- Play -->
+            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-play-fill" fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z" />
+            </svg>
+            <!-- Skip Forkward -->
+            <svg id="Forkward" width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-skip-forward-fill"
+                fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M15.5 3.5a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z" />
+                <path
+                    d="M7.596 8.697l-6.363 3.692C.693 12.702 0 12.322 0 11.692V4.308c0-.63.693-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z" />
+                <path
+                    d="M15.096 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.693-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z" />
+            </svg>
+        </div>
+
+
+    </div>
+    <script src="https://unpkg.com/ionicons@5.2.3/dist/ionicons.js"></script>
+    <script>
+        /* $(document).ready(function () {
+            $(".player").mouseenter(() => {
+                $(".player").css("color", "white");
+            });
+
+            $(".player").mouseleave(() => {
+                $(".player").css("color", "lightgrey");
+            });
+        }) */
+    </script>
+</body>
+
+</html>
