@@ -50,6 +50,8 @@ $(document).ajaxError(function (event, request, settings) {
 function checkIfPlaying(playerURL, headers, player, playPauseBtn) {
   console.log(playerURL);
   console.log('headers: ' + JSON.stringify(headers));
+  var currPlaying = document.querySelector('#currPlaying');
+  var marquee = document.querySelector('#currPlaying marquee');
   var artwork = document.querySelector('#artwork');
 
   $.ajax({
@@ -62,12 +64,14 @@ function checkIfPlaying(playerURL, headers, player, playPauseBtn) {
       player.isPlaying = playerStatus.is_playing;
       //console.log(player.isPlaying);
       player.isPlaying ? playPauseBtn.setAttribute('name', 'pause-outline') : playPauseBtn.setAttribute('name', 'play-outline');
+      marquee.innerHTML = playerStatus.item.name + ' - ' + playerStatus.item.artists[0].name;
       document.querySelector('#track-name').innerHTML = playerStatus.item.name;
       document.querySelector('#artist-name').innerHTML = playerStatus.item.artists[0].name;
       artwork.src = playerStatus.item.album.images[0].url;
+      //document.body.style.backgroundImage = "url(" + artwork.src + ")";
 
       var colorThieff = new ColorThief();
-      var sourcImage = document.getElementById('image');
+      var sourcImage = document.getElementById('image'); //('currTrackArtwork')
       sourcImage.src = document.getElementById('artwork').src;
       $('#image').one('load', () => {
         //console.log(document.getElementById('image').src);
@@ -85,14 +89,87 @@ function checkIfPlaying(playerURL, headers, player, playPauseBtn) {
   })
 }
 
+// Get Available Devices
+function getDevices(headers, curr_device_id, devicesDropDown) {
+  $.ajax({
+    method: 'GET',
+    url: 'https://api.spotify.com/v1/me/player/devices',
+    headers: headers,
+    success: (response) => {
+      var devices = JSON.parse(JSON.stringify(response));
+      devices.devices.forEach(device => {
+        var newLi = document.createElement('a'); // I know it's a tag
+        newLi.classList.add('dropdown-item');
+        newLi.innerHTML = device.type + ' - ' + device.name;
+        newLi.addEventListener('click', () => {
+          curr_device_id = device.id;
+          //console.log(device.id)
+          //console.log(device.name)
+          document.querySelector('#currDevice').innerHTML = device.name;
+        });
+        devicesDropDown.appendChild(newLi);
+      });
+    },
+    error: (e) => {
+      if (e.status == '401') {
+        window.location.replace('/refresh_token')
+      }
+    }
+  })
+}
+
+// Get Recently-Played
+function recentlyPlayed(headers, username) {
+  $.ajax({
+    method: 'GET',
+    url: 'https://api.spotify.com/v1/me/player/recently-played',
+    headers: headers,
+    data: {
+      'limit': '20'
+    },
+    success: (response) => {
+      var recently_played = JSON.parse(JSON.stringify(response));
+      var tbl = document.querySelector('#songTbl'); // Get table element
+      var prevPlayIdx = document.querySelector('#previouslyPlayedRow').rowIndex;
+      var currIdx = prevPlayIdx; // Current last index in table
+      //console.log(prevPlayIdx);
+      //console.log(tbl.rows[prevPlayIdx + 1]);
+      while (tbl.rows[prevPlayIdx + 1] != null) {
+        tbl.deleteRow(prevPlayIdx + 1);
+      }
+
+      recently_played.items.forEach(track => {
+        var track_name = track.track.name;
+        var track_artist = track.track.artists[0].name;
+
+        // Add song to table
+        var row = tbl.insertRow(currIdx + 1);
+        currIdx++;
+        //console.log(prevPlayIdx + 1);
+        row.classList.add('table-secondary')
+        var trackNameCell = row.insertCell(0);
+        var trackArtistCell = row.insertCell(1);
+        var requestedByCell = row.insertCell(2);
+
+        trackNameCell.innerHTML = track_name;
+        trackArtistCell.innerHTML = track_artist;
+        requestedByCell.innerHTML = username;
+      })
+    },
+    error: (() => {
+      getAccessToken();
+    })
+  })
+}
+
 // Add track to queue
 function addTrackToQueue(headers, username) {
   var userId = '';
-  var searchItem = document.querySelector('.input').value;
+  var searchItem = document.querySelector('#searchItem').value;
   // Clear search
-  document.querySelector('.input').value = '';
+  document.querySelector('#searchItem').value = '';
   // Focus on search
-  document.querySelector('.input').focus();
+  document.querySelector('#searchItem').focus();
 
   // Search Song
   $.ajax({
@@ -107,8 +184,22 @@ function addTrackToQueue(headers, username) {
       // Get artist name
       console.log(response);
       var search = JSON.parse(JSON.stringify(response));
+      var artistName = search.tracks.items[0].artists[0].name;
+      var trackName = search.tracks.items[0].name;
       var trackURI = search.tracks.items[0].uri;
       //console.log(trackURI); // Dev
+
+      // Add song to table
+      var tbl = document.querySelector('#songTbl'); // Get table element
+      var row = tbl.insertRow(1);
+      var trackNameCell = row.insertCell(0);
+      var trackArtistCell = row.insertCell(1);
+      var requestedByCell = row.insertCell(2);
+      //var trackArtwork = document.createElement('img');
+      //trackArtwork.setAttribute('src', search.tracks.items[0].artists[0].images[0].url)
+      trackNameCell.innerHTML = trackName;
+      trackArtistCell.innerHTML = artistName;
+      requestedByCell.innerHTML = username;
 
       // Add song to queue - Working weird
       $.ajax({

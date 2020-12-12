@@ -9,117 +9,7 @@
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <style>
-        * {
-            box-sizing: content-box;
-        }
-
-        body {
-            background-color: cadetblue;
-            padding-top: 30px;
-            text-align: center;
-            color: white;
-        }
-
-        .header {
-            font-size: 25px;
-            padding-bottom: 70px;
-        }
-
-        #container {
-            margin-top: 100px;
-            position: relative;
-
-        }
-
-        #artwork {
-            /* display: block; */
-            margin-left: auto;
-            margin-right: auto;
-            width: 70%;
-            box-shadow: 3px 3px 10px #000000;
-        }
-
-        .player {
-            padding-top: 20px;
-            letter-spacing: 40px;
-            font-size: 300%;
-        }
-
-        p {
-            margin: 0;
-            padding: 0;
-        }
-
-        .track {
-            font-size: 20px;
-            padding-top: 30px;
-            display: flex;
-            flex-direction: column;
-            margin-left: 15%;
-            text-align: left;
-        }
-
-        .track #track-name {
-            font-weight: bold;
-        }
-
-        .track #artist-name {
-            color: lightgray;
-        }
-
-        .search-bar {
-            --size: 40px;
-            --bcolor: #2f3640;
-            display: block;
-            position: absolute;
-            left: 50%;
-            border-radius: 40px;
-            height: var(--size);
-            transform: translate(-50%);
-            transition: 0.4s;
-            background: var(--bcolor);
-            padding: 10px;
-            width: max-content;
-        }
-
-        .search-bar:hover>.input {
-            width: 240px;
-            /* padding: 0.6px; */
-        }
-
-        .search-bar:hover>.submit {
-            /* background: white; */
-            background: var(--bcolor);
-        }
-
-        .search-bar .input {
-            border: none;
-            background: none;
-            outline: none;
-            /* float: left; */
-            padding: 0;
-            color: white;
-            font-size: 16px;
-            transition: 0.4s;
-            line-height: var(--size);
-            width: 0px;
-        }
-
-        .search-bar .submit {
-            /* color: #e84118; */
-            color: white;
-            float: right;
-            width: var(--size);
-            height: var(--size);
-            border-radius: 50%;
-            background: var(--bcolor);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: 0.4s;
-        }
-    </style>
+    <link rel="stylesheet" href="main.css">
 </head>
 
 <body ontouchstart="">
@@ -138,8 +28,12 @@
         <!-- Title -->
         <div class="track">
             <!-- <marquee> -->
-            <p id="track-name">Track name</p>
-            <p id="artist-name">Artist</p>
+            <p id="track-name">
+                <!-- Track name -->
+            </p>
+            <p id="artist-name">
+                <!-- Artist -->
+            </p>
             <!-- </marquee> -->
         </div>
         <!-- Player -->

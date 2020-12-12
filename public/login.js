@@ -93,11 +93,11 @@ $(function () {
                         document.cookie = `roomid=${roomId.val()}`;
                         document.cookie = `nickname=${nickname.val()}`;
                         console.log('cookies: ' + document.cookie);
-                        window.location = `http://localhost:5000/jukebox.html?roomid=${roomId.val()}&nickname=${nickname.val()}`;
+                        window.location = `/jukebox.html?roomid=${roomId.val()}&nickname=${nickname.val()}`;
                     }
                     else {
                         if (cookies) {
-                            window.location = `http://localhost:5000/jukebox.html?roomid=${cookies.roomid}&nickname=${cookies.nickname}`;
+                            window.location = `/jukebox.html?roomid=${cookies.roomid}&nickname=${cookies.nickname}`;
                         }
                     }
                 })
@@ -124,7 +124,7 @@ $(function () {
                 success: (response) => {
                     loader.hide();
                     console.log(response);
-                    window.location = `http://localhost:5000/#roomid=${response}`;
+                    window.location = `/#roomid=${response}`;
                     window.location.reload();
                 },
                 error: (response) => {
@@ -158,7 +158,6 @@ $(function () {
             }
         }, 1000);
         window.location.href = '/login';
-        //window.location.href = '/login';
     })
 
     $('#login-form').on('submit', function (event) {
