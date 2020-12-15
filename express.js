@@ -10,6 +10,7 @@ const http = require('http');
 const socketio = require('socket.io');
 const admin = require("firebase-admin");
 const bodyParser = require('body-parser');
+require('dotenv').config();
 
 const serviceAccount = require("./serviceAccountKey.json");
 const { RSA_NO_PADDING } = require("constants");

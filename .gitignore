@@ -1,0 +1,12 @@
+.env
+node_modules/
+public/test.html
+public/test2.html
+public/player.html
+public/loginPage.html
+junk/
+bower_components/
+backup/
+design.html
+spotifyRequestsOld.js
+
