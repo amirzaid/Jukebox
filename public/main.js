@@ -105,10 +105,10 @@ $(function () {
         var playerURL = 'https://api.spotify.com/v1/me/player'; // Player endpoint url
         var player = { isPlaying: false }; // Is currently playing
         const abtn = document.querySelector('.search-bar .submit'); // Add song button
+        var searchItem = document.querySelector('.input');
         var skipBackBtn = document.querySelector('#skipBack'); // Skip back button
         var skipForwardBtn = document.querySelector('#skipForward'); // Skip forward button
         var playPauseBtn = document.querySelector('#playPauseBtn');
-
 
         // Update list every 5 seconds
         setInterval(() => {
@@ -119,7 +119,8 @@ $(function () {
 
         // Add Song to Queue
         abtn.addEventListener('click', () => {
-            addTrackToQueue(headers, nickname);
+            if (searchItem.value != "")
+                addTrackToQueue(headers, nickname);
         })
 
         // Play / Pause Playback

@@ -3,6 +3,7 @@ var access_token = ''; // Host's access-token
 var refresh_token = ''; // Host's refresh-token
 var headers = { 'Authorization': 'Bearer ' + access_token }; // Headers
 var interval;
+var loader = $('.loader-wrapper');
 
 function getHeader() {
   return headers;
@@ -33,10 +34,11 @@ function getAccessToken() {
 
 // Ajax error catcher
 $(document).ajaxError(function (event, request, settings) {
-  alert(request.status + " - Error requesting page " + settings.url);
+  /* alert(request.status + " - Error requesting page " + settings.url);
   console.log(event);
   console.log(request);
-  console.log(settings);
+  console.log(settings); */
+  loader.show(); //Loading...
 
   // Unauthorized access
   if (request.status == 401) {
@@ -45,6 +47,17 @@ $(document).ajaxError(function (event, request, settings) {
     //clearInterval(interval);
   }
 });
+
+// Convert rgb string to hex string
+function rgb2Hex(color) {
+  rgb = String(color).split(',');
+  var hex = rgb.map((x) => {             //For each array element
+    x = parseInt(x).toString(16);      //Convert to a base16 string
+    return (x.length == 1) ? "0" + x : x;  //Add zero if we get only one character
+  })
+  hex = "#" + hex.join(""); // Join to hex format
+  return hex;
+}
 
 // Check if device is playing
 function checkIfPlaying(playerURL, headers, player, playPauseBtn) {
@@ -61,7 +74,7 @@ function checkIfPlaying(playerURL, headers, player, playPauseBtn) {
       var playerStatus = JSON.parse(JSON.stringify(response));
       player.isPlaying = playerStatus.is_playing;
       //console.log(player.isPlaying);
-      player.isPlaying ? playPauseBtn.setAttribute('name', 'pause-outline') : playPauseBtn.setAttribute('name', 'play-outline');
+      player.isPlaying ? playPauseBtn.setAttribute('name', 'pause') : playPauseBtn.setAttribute('name', 'play');
       document.querySelector('#track-name').innerHTML = playerStatus.item.name;
       document.querySelector('#artist-name').innerHTML = playerStatus.item.artists[0].name;
       artwork.src = playerStatus.item.album.images[0].url;
@@ -69,18 +82,30 @@ function checkIfPlaying(playerURL, headers, player, playPauseBtn) {
       var colorThieff = new ColorThief();
       var sourcImage = document.getElementById('image');
       sourcImage.src = document.getElementById('artwork').src;
+      if (player.isPlaying) {
+        document.getElementById('artwork').style.width = "328px";
+        document.getElementById('artwork').style.height = "328px";
+      }
+      else {
+        document.getElementById('artwork').style.width = "234px";
+        document.getElementById('artwork').style.height = "234px";
+      }
       $('#image').one('load', () => {
-        //console.log(document.getElementById('image').src);
-        //console.log('color:' + colorThieff.getColor(sourcImage));
-        //var bgColor = colorThieff.getColor(sourcImage);
         // Change body background color to track artwork color
+        // linear-gradient
+        /* $('body').css({ 'background': `-webkit-linear-gradient(${rgb2Hex(colorThieff.getColor(sourcImage))},  #383838 `, 'background-attachment': 'fixed' }); */
+
+        // one color
         document.body.animate([
-          { backgroundColor: `rgb(${colorThieff.getColor(sourcImage)})` }
+          {
+            backgroundColor: `rgb(${colorThieff.getColor(sourcImage)})`
+          }
         ], {
           duration: 2000,
           fill: "forwards"
         });
       });
+      loader.hide();
     }
   })
 }
@@ -120,6 +145,22 @@ function addTrackToQueue(headers, username) {
         //  "device": curr_device_id
         //}
       })
+
+      /* $('.popup').css({ 'right': '10px', 'opacity': '1' }); */
+
+      /* const t1 = new TimelineMax();
+      t1.fromTo(document.querySelector('.popup'), 0.6, { right: '-165px', opacity: '0', ease: Power2.easeInOut }, { right: '10px', opacity: '1', ease: Power2.easeInOut }); */
+
+      /* var tl = new TimelineMax();
+
+      console.log('animation test');
+      tl.from(document.querySelector('.popup'), 1.0, { right: '-165px' });
+      tl.to(document.querySelector('.popup'), 1.0, { right: '10px' }); */
+
+      $(".popup").addClass('animated');
+      setTimeout(() => {
+        $(".popup").removeClass('animated');
+      }, 5000);
     }
   });
 }

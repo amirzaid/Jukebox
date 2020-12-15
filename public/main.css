@@ -6,32 +6,72 @@ body {
   /* background-color: cadetblue; */
   padding-top: 30px;
   text-align: center;
-  color: white;
+  overflow: hidden;
 }
 
 .header {
-  font-size: 25px;
+  font-size: 30px;
   padding-bottom: 70px;
 }
 
 #container {
-  margin-top: 100px;
+  /* margin-top: 100px; */
   position: relative;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  margin: 100px auto 0 auto;
+  width: 375px;
+}
 
+.background { 
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background: -webkit-linear-gradient(transparent, rgba(88, 86, 86, 0.8));
+  background-attachment: fixed;
+  overflow: hidden;
+}
+
+.popup {
+  position: absolute;
+  right: -165px;
+  bottom: 15px;
+  height: 45px;
+  width: 160px;
+  background: #4bce3c9e;
+  border-radius: 5%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  color: white;
+  transition: all 1s ease-in-out;
+  opacity: 0;
+}
+
+.popup.animated {
+  right: 10px;
+  opacity: 1;
 }
 
 #artwork {
-  /* display: block; */
   margin-left: auto;
   margin-right: auto;
-  width: 70%;
+  /* width: 328px;
+  height: 328px; */
+  border-radius: 5%;
   box-shadow: 3px 3px 10px #000000;
+  transition: 0.4s ease-in-out;
 }
 
 .player {
   padding-top: 20px;
-  letter-spacing: 40px;
-  font-size: 300%;
+  font-size: 48px;
+  /* mix-blend-mode: difference; */
+  display: flex;
+  justify-content: space-evenly;
 }
 
 p {
@@ -46,10 +86,12 @@ a {
 .track {
   font-size: 20px;
   padding-top: 30px;
-  display: flex;
+  /* display: flex;
   flex-direction: column;
-  margin-left: 15%;
+  margin-left: 15%; */
   text-align: left;
+  /* mix-blend-mode: difference; */
+  transition: 0.2s;
 }
 
 .track #track-name {
@@ -110,4 +152,43 @@ a {
   justify-content: center;
   align-items: center;
   transition: 0.4s;
+}
+
+.search-bar .submit:active {
+  font-size: 25px;
+}
+
+#skipBack:active, #playPauseBtn:active, #skipForward:active {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  font-size: 44px;
+}
+
+.player a {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.player ion-icon {
+  padding-top: -3px;
+}
+
+.loader-wrapper {
+  background-color: #383838;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: white;
+}
+
+.loader-wrapper p {
+  margin-top: 10px;
 }
