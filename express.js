@@ -7,7 +7,6 @@ const cookieParser = require("cookie-parser");
 const { query, Router } = require("express");
 const path = require("path");
 const http = require('http');
-const socketio = require('socket.io');
 const admin = require("firebase-admin");
 const bodyParser = require('body-parser');
 require('dotenv').config();
@@ -17,7 +16,7 @@ const { RSA_NO_PADDING } = require("constants");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://jukebox-d932d.firebaseio.com"
+  databaseURL: process.env.DB_URL
 });
 
 // Get a database reference to our posts
@@ -26,10 +25,9 @@ var ref = db.ref();
 
 var app = express(); // Create express app
 const server = http.createServer(app); // Create a server
-const io = socketio(server);
 
-var client_id = "677e9c59932b4ef3842105a3d342bb0f"; // Your client id
-var client_secret = "8f7b02fcd4534e0da05d3c77216139a4"; // Your secret
+var client_id = process.env.CLIENT_ID; // Your client id
+var client_secret = process.env.CLIENT_SECRET; // Your secret
 var redirect_uri = "http://localhost:5000/callback"; // Your redirect uri
 
 /**
@@ -142,29 +140,8 @@ app.get("/callback", (req, res) => {
             participants: null
           });
 
-          /* var addUserRequestOptions = {
-
-          }
-          // Push host user to DB
-          request.post()
-          ref.child('users').push({
-
-          }) */
-
           res.redirect(`/#roomid=${roomID}`); // Redirect user to index + roomid hash param
         });
-
-        //console.log(access_token);
-
-        // redirect to index.html with access and refresh token
-        //res.redirect(
-        //  "/#" +
-        //  querystring.stringify({
-        //    access_token: access_token,
-        //    refresh_token: refresh_token,
-        //    expires_in: expires_in
-        //  })
-        //);
 
       } else {
         res.redirect(
@@ -202,25 +179,6 @@ app.get('/refresh_token', function (req, res) {
     }
   });
 });
-
-// Run when client connects
-io.on('connection', socket => {
-  console.log('New WS Connection...')
-
-  // Welcome current user
-  socket.emit('message', 'Welcome to jukebox!');
-
-  // Broadcast when a user connects
-  socket.broadcast.emit('message', 'A user has join the room');
-
-  //socket.io.emit('message', 'USER has joined the room');
-
-  // Runs when client disconnects
-  socket.on('disconnect', () => {
-    io.emit('message', 'A user has left the room');
-  });
-});
-
 
 //check for valid room id
 app.get('/checkroom', (req, res) => {

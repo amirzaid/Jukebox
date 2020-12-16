@@ -1,4 +1,3 @@
-//import { checkIfPlaying, getDevices, recentlyPlayed, addTrackToQueue, PlayPausePlayer, skip } from './spotifyRequests.js';
 $(function () {
     // Your web app's Firebase configuration
     var firebaseConfig = {
@@ -21,6 +20,15 @@ $(function () {
     var user_db_key = ''; // User's key in room's db
     var room_db_key = ''; // Room's key in db
     var user; //Current firebase user
+
+    // Help
+    $('.help-text').hide(); // Hide help box on default
+    $('.help-btn').on('click', () => {
+        $('.help-text').css('display', 'flex');
+    })
+    $('.close-help-text').on('click', () => {
+        $('.help-text').css('display', 'none');
+    })
 
     // Ask user before leaving page - displayed only after user interacted with the page
     window.addEventListener('beforeunload', (ev) => {
@@ -146,5 +154,3 @@ $(function () {
         });
     }
 });
-
-//export { access_token, refresh_token };

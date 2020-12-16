@@ -28,8 +28,6 @@ $(function () {
 
     var params = getHashParams();
 
-    var params = getHashParams();
-
     const nickname = $('[name = nickname]').hide();
     const joinBtn = $('#join').hide();
     const roomId = $('[name = roomid]');
@@ -49,6 +47,11 @@ $(function () {
         nextBtn.hide();
     };
 
+    // Close help button
+    $('.close-help-text').on('click', () => {
+        $('.help-text').css('display', 'none');
+    })
+
     function map_cookies() {
         cookies = document.cookie
             .split(';')
@@ -66,9 +69,7 @@ $(function () {
             }
             console.log('cookies: ' + document.cookie);
             current_user = firebaseUser;
-            console.log(firebaseUser)
             logout.show();
-            alert('user already logged-in, should redirect here');
             // Is host now
             firebase.auth().currentUser.getIdTokenResult()
                 .then((idTokenResult) => {
@@ -76,27 +77,28 @@ $(function () {
                     // Confirm the user is a Host.
                     if (!!idTokenResult.claims.host) {
                         // Show admin UI.
-                        console.log('user is host');
-                        console.log(roomId);
+                        /* console.log('user is host');
+                        console.log(roomId); */
                     } else {
                         // Show regular user UI.
                         console.log('user is not a host');
                     }
-                    //window.location = `http://localhost:5000/jukebox.html#roomid=${room_hash_value}`;
-                    hideRoomID();
+                    // If input fields are full save them in a cookie and redirect
                     if (roomId.val() && nickname.val()) {
-                        //$('#login-form').submit();
                         // reset cookies
                         document.cookie = "roomid=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
                         document.cookie = "nickname=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
                         // set cookies
                         document.cookie = `roomid=${roomId.val()}`;
                         document.cookie = `nickname=${nickname.val()}`;
-                        console.log('cookies: ' + document.cookie);
                         window.location = `/jukebox.html?roomid=${roomId.val()}&nickname=${nickname.val()}`;
                     }
+                    // One or more input field are not full
                     else {
-                        if (cookies) {
+                        // If cookies available - redirect
+                        if (cookies.roomid && cookies.nickname) {
+                            /* alert('User logged in - Redirecting.'); */
+                            $('.help-text').css('display', 'flex');
                             window.location = `/jukebox.html?roomid=${cookies.roomid}&nickname=${cookies.nickname}`;
                         }
                     }
@@ -106,7 +108,7 @@ $(function () {
                 });
         }
         else {
-            alert('user signed-out');
+            alert('User disconnected.');
             logout.hide();
             spotifyBtn.show();
         }
@@ -114,7 +116,7 @@ $(function () {
 
     nextBtn.on('click', () => {
         if (roomId.val() == '')
-            alert('RoomID cannot be empty');
+            alert('RoomID cannot be empty.');
         else {
             loader.show(); //Loading...
             // Check if room id is valid
@@ -129,7 +131,7 @@ $(function () {
                 },
                 error: (response) => {
                     loader.hide();
-                    alert('No existing room with this roomID');
+                    alert('No existing room with this roomID.');
                 }
             });
         }
@@ -162,11 +164,16 @@ $(function () {
 
     $('#login-form').on('submit', function (event) {
         event.preventDefault();
+        // If disconnected - log user anonymously and event listener will redirect
         if (!current_user) {
             firebase.auth().signInAnonymously();
         }
-        alert('logged-in');
-        console.log(current_user);
+        // If logged-in - refresh to trigger event listener
+        else {
+            location.reload();
+        }
+        /* alert('logged-in');
+        console.log(current_user); */
         //return true;
     })
 

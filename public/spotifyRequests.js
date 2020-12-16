@@ -21,13 +21,6 @@ function getAccessToken() {
       access_token = data.access_token;
       headers = { 'Authorization': 'Bearer ' + access_token }; // Headers
       console.log('new access_token: ' + access_token);
-      //clearInterval(interval);
-      // Update interval
-      /* interval = setInterval(() => {
-        console.log('amir: ' + headers.Authorization);
-        checkIfPlaying(playerURL, headers, player, playPauseBtn);
-        recentlyPlayed(headers);
-      }, 5000, headers); */
     }
   })
 }
@@ -70,10 +63,8 @@ function checkIfPlaying(playerURL, headers, player, playPauseBtn) {
     url: playerURL + '/currently-playing',
     headers: headers,
     success: function (response) {
-      //console.log(response);
       var playerStatus = JSON.parse(JSON.stringify(response));
       player.isPlaying = playerStatus.is_playing;
-      //console.log(player.isPlaying);
       player.isPlaying ? playPauseBtn.setAttribute('name', 'pause') : playPauseBtn.setAttribute('name', 'play');
       document.querySelector('#track-name').innerHTML = playerStatus.item.name;
       document.querySelector('#artist-name').innerHTML = playerStatus.item.artists[0].name;
@@ -92,8 +83,6 @@ function checkIfPlaying(playerURL, headers, player, playPauseBtn) {
       }
       $('#image').one('load', () => {
         // Change body background color to track artwork color
-        // linear-gradient
-        /* $('body').css({ 'background': `-webkit-linear-gradient(${rgb2Hex(colorThieff.getColor(sourcImage))},  #383838 `, 'background-attachment': 'fixed' }); */
 
         // one color
         document.body.animate([
@@ -139,23 +128,8 @@ function addTrackToQueue(headers, username) {
       $.ajax({
         method: 'POST',
         url: 'https://api.spotify.com/v1/me/player/queue?uri=' + trackURI,
-        headers: headers//,
-        //data: {
-        //  "uri": trackURI,
-        //  "device": curr_device_id
-        //}
+        headers: headers
       })
-
-      /* $('.popup').css({ 'right': '10px', 'opacity': '1' }); */
-
-      /* const t1 = new TimelineMax();
-      t1.fromTo(document.querySelector('.popup'), 0.6, { right: '-165px', opacity: '0', ease: Power2.easeInOut }, { right: '10px', opacity: '1', ease: Power2.easeInOut }); */
-
-      /* var tl = new TimelineMax();
-
-      console.log('animation test');
-      tl.from(document.querySelector('.popup'), 1.0, { right: '-165px' });
-      tl.to(document.querySelector('.popup'), 1.0, { right: '10px' }); */
 
       $(".popup").addClass('animated');
       setTimeout(() => {
@@ -186,7 +160,6 @@ function PlayPausePlayer(headers, curr_device_id, playerURL, player) {
 
 // Skip back / forward
 function skip(skipURL, headers, curr_device_id, playPauseBtn, playerURL, player) {
-  //console.log(skipURL);
   $.ajax({
     method: 'POST',
     url: skipURL,
@@ -200,5 +173,3 @@ function skip(skipURL, headers, curr_device_id, playPauseBtn, playerURL, player)
     }, 1000)
   })
 }
-
-//export { checkIfPlaying, getDevices, recentlyPlayed, addTrackToQueue, PlayPausePlayer, skip };
