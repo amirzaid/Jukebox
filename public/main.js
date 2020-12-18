@@ -21,13 +21,35 @@ $(function () {
     var room_db_key = ''; // Room's key in db
     var user; //Current firebase user
 
+    // Copy given text to clipboard
+    function copy2clipboard(str) {
+        var copyText = document.createElement('textarea');
+        copyText.value = str;
+        document.body.appendChild(copyText);
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobie
+        document.execCommand('copy');
+        document.body.removeChild(copyText);
+    }
     // Help
-    $('.help-text').hide(); // Hide help box on default
+    $('.help-popup').hide(); // Hide help box on default
     $('.help-btn').on('click', () => {
-        $('.help-text').css('display', 'flex');
+        $('.help-popup').css('display', 'flex');
+        $('.help-text span').text(roomid);
     })
+    // Close popup
     $('.close-help-text').on('click', () => {
-        $('.help-text').css('display', 'none');
+        $('.help-popup').css('display', 'none');
+    })
+    // Copy roomid to clipboard
+    $('.copy-roomid').on('click', () => {
+        /* navigator.clipboard.writeText($('.help-text span').text()); */
+        copy2clipboard($('.help-text span').text());
+        $(".popup span").text("Copied to clipboard");
+        $(".popup").addClass('animated');
+        setTimeout(() => {
+            $(".popup").removeClass('animated');
+        }, 5000);
     })
 
     // Ask user before leaving page - displayed only after user interacted with the page

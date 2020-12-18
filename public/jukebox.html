@@ -15,7 +15,8 @@
 
 <body>
     <div class="background">
-        <div class="popup">Queue updated
+        <div class="popup">
+            <span></span>
             <ion-icon name="checkmark-circle"></ion-icon>
         </div>
     </div>
@@ -25,12 +26,15 @@
         <a class="help-btn">
             <ion-icon name="information-circle-outline"></ion-icon>
         </a>
-        <div class="help-text">
-            Welcome! Jukebox let's your friends add songs to your spotify running playlist.
+        <div class="help-popup">
+            <div class="help-text">
+                RoomID: <span></span>
+                <a class="copy-roomid"><ion-icon name="copy-outline"></ion-icon></a>
+            </div>
             <button class="close-help-text">
                 Got it
             </button>
-        </div>
+    </div>
     </div>
 
     <img hidden=true id="image" crossorigin="anonymous"
