@@ -145,12 +145,5 @@ $(function () {
         skipBackBtn.addEventListener('click', () => {
             skip(playerURL + '/previous', headers, curr_device_id, playPauseBtn, playerURL, player);
         });
-
-        // Room handeling
-        const socket = io();
-
-        socket.on('message', message => {
-            console.log(message);
-        });
     }
 });
