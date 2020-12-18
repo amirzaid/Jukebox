@@ -131,6 +131,8 @@ function addTrackToQueue(headers, username) {
         headers: headers
       })
 
+      // Show popup
+      $(".popup span").text("Queue updated");
       $(".popup").addClass('animated');
       setTimeout(() => {
         $(".popup").removeClass('animated');
