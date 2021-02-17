@@ -13,9 +13,7 @@ $(function () {
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
 
-    /* Obtains parameters from the hash of the URL
-        * @return Object
-        */
+    // Obtains parameters from the hash of the URL
     function getHashParams() {
         var hashParams = {};
         var e, r = /([^&;=]+)=?([^&;]*)/g,
@@ -35,6 +33,7 @@ $(function () {
     const loader = $('.loader-wrapper').hide();
     const logout = $('#logout').hide();
     const spotifyBtn = $('#spotify-login');
+    const seperator = $('#seperator');
     const room_hash_value = params.roomid;
     var cookies = document.cookie;
     var current_user = firebase.auth().currentUser;
@@ -76,12 +75,9 @@ $(function () {
                     console.log(idTokenResult);
                     // Confirm the user is a Host.
                     if (!!idTokenResult.claims.host) {
-                        // Show admin UI.
-                        /* console.log('user is host');
-                        console.log(roomId); */
+                        // room admin handler - TBD
                     } else {
-                        // Show regular user UI.
-                        console.log('user is not a host');
+                        // room admin handler - TBD
                     }
                     // If input fields are full save them in a cookie and redirect
                     if (roomId.val() && nickname.val()) {
@@ -97,7 +93,6 @@ $(function () {
                     else {
                         // If cookies available - redirect
                         if (cookies.roomid && cookies.nickname) {
-                            /* alert('User logged in - Redirecting.'); */
                             $('.help-text').css('display', 'flex');
                             window.location = `/jukebox.html?roomid=${cookies.roomid}&nickname=${cookies.nickname}`;
                         }
@@ -111,6 +106,7 @@ $(function () {
             alert('User disconnected.');
             logout.hide();
             spotifyBtn.show();
+            seperator.hide()
         }
     })
 
@@ -125,7 +121,6 @@ $(function () {
                 url: `/checkroom/?roomid=${roomId.val()}`,
                 success: (response) => {
                     loader.hide();
-                    console.log(response);
                     window.location = `/#roomid=${response}`;
                     window.location.reload();
                 },
@@ -172,14 +167,12 @@ $(function () {
         else {
             location.reload();
         }
-        /* alert('logged-in');
-        console.log(current_user); */
-        //return true;
     })
 
-    //console.log(window.location.hash[0]);
     if (window.location.hash[0] == '#') {
         $('#spotify-login').hide();
+        //if (!$('#spotify-login').is(":visible") || !$('#logout').is(":visible"))
+        seperator.hide()
         roomId.val(room_hash_value);
         hideRoomID();
     }
@@ -194,11 +187,6 @@ $(function () {
         }).done(function (data) {
             console.log(data.access_token);
             console.log(data);
-            //  access_token = data.access_token;
-            //  oauthPlaceholder.innerHTML = oauthTemplate({
-            //    access_token: access_token,
-            //    refresh_token: refresh_token
-            //  });
         });
     }, false);
 })

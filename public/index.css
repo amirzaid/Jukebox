@@ -1,7 +1,10 @@
 body {
     background-color: #19e68c;
-    margin-top: 250px;
+    margin-top: 200px;
     text-align: center;
+    position: fixed;
+    width: 100%;
+    height: 100%;
   }
 
   #login-form {
