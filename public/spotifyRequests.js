@@ -1,18 +1,17 @@
-//import { access_token, refresh_token } from './main.js';
 var access_token = ''; // Host's access-token
 var refresh_token = ''; // Host's refresh-token
 var headers = { 'Authorization': 'Bearer ' + access_token }; // Headers
 var interval;
 var loader = $('.loader-wrapper');
 
+// Used in main
 function getHeader() {
   return headers;
 }
 
 function getAccessToken() {
-  console.log('amir test');
-  console.log(refresh_token);
-  console.log(access_token);
+  /* console.log(refresh_token);
+  console.log(access_token); */
   // Obtain new access token
   $.ajax({
     url: '/refresh_token',
@@ -27,8 +26,8 @@ function getAccessToken() {
 
 // Ajax error catcher
 $(document).ajaxError(function (event, request, settings) {
-  /* alert(request.status + " - Error requesting page " + settings.url);
-  console.log(event);
+  alert(request.status + " - Error requesting page " + settings.url);
+  /* console.log(event);
   console.log(request);
   console.log(settings); */
   loader.show(); //Loading...
@@ -36,8 +35,7 @@ $(document).ajaxError(function (event, request, settings) {
   // Unauthorized access
   if (request.status == 401) {
     console.log('access-token expired');
-    getAccessToken();
-    //clearInterval(interval);
+    /* getAccessToken(); */
   }
 });
 
@@ -53,41 +51,44 @@ function rgb2Hex(color) {
 }
 
 // Check if device is playing
-function checkIfPlaying(playerURL, headers, player, playPauseBtn) {
-  console.log(playerURL);
-  console.log('headers: ' + JSON.stringify(headers));
-  var artwork = document.querySelector('#artwork');
+function checkIfPlaying(player, playPauseBtn) {
+  /* function checkIfPlaying(playerURL, headers, player, playPauseBtn) { */
+  var artwork = $('#artwork');
 
   $.ajax({
     method: 'GET',
-    url: playerURL + '/currently-playing',
-    headers: headers,
+    url: '/currently_playing',
     success: function (response) {
-      var playerStatus = JSON.parse(JSON.stringify(response));
-      player.isPlaying = playerStatus.is_playing;
-      player.isPlaying ? playPauseBtn.setAttribute('name', 'pause') : playPauseBtn.setAttribute('name', 'play');
-      document.querySelector('#track-name').innerHTML = playerStatus.item.name;
-      document.querySelector('#artist-name').innerHTML = playerStatus.item.artists[0].name;
-      artwork.src = playerStatus.item.album.images[0].url;
+      var playerStatus = response.body;
+      console.log(playerStatus);
+      player.isPlaying = playerStatus.is_playing; // Playing status
+      // If playing - display pause button | If paused - display play button
+      player.isPlaying ? playPauseBtn.attr('name', 'pause') : playPauseBtn.attr('name', 'play');
+      /* player.isPlaying ? playPauseBtn.setAttribute('name', 'pause') : playPauseBtn.setAttribute('name', 'play'); */
+      $('#track-name').text(playerStatus.item.name); // Track name element
+      $('#artist-name').text(playerStatus.item.artists[0].name); // Track artist element
+      artwork.attr('src', playerStatus.item.album.images[0].url); // Set artwork src url to current track url
 
+      // Get album artwork theme colors
       var colorThieff = new ColorThief();
-      var sourcImage = document.getElementById('image');
-      sourcImage.src = document.getElementById('artwork').src;
+      var sourcImage = $('#image')
+      sourcImage.attr('src', artwork.attr('src'))
+      console.log(sourcImage[0]);
       if (player.isPlaying) {
-        document.getElementById('artwork').style.width = "328px";
-        document.getElementById('artwork').style.height = "328px";
+        artwork.css('width', '328px');
+        artwork.css('height', '328px');
       }
       else {
-        document.getElementById('artwork').style.width = "234px";
-        document.getElementById('artwork').style.height = "234px";
+        artwork.css('width', '234px');
+        artwork.css('height', '234px');
       }
-      $('#image').one('load', () => {
+      sourcImage.on('load', () => {
         // Change body background color to track artwork color
 
         // one color
         document.body.animate([
           {
-            backgroundColor: `rgb(${colorThieff.getColor(sourcImage)})`
+            backgroundColor: `rgb(${colorThieff.getColor(sourcImage[0])})`
           }
         ], {
           duration: 2000,
@@ -95,40 +96,36 @@ function checkIfPlaying(playerURL, headers, player, playPauseBtn) {
         });
       });
       loader.hide();
-    }
+    },
+    error: (err) => console.log(err)
   })
 }
 
 // Add track to queue
-function addTrackToQueue(headers, username) {
-  var userId = '';
-  var searchItem = document.querySelector('.input').value;
+function addTrackToQueue() {
+  /* function addTrackToQueue(headers, username) { */
+  var searchInput = $('.input')
+  var searchItem = searchInput.val()
   // Clear search
-  document.querySelector('.input').value = '';
+  searchInput.val('')
   // Focus on search
-  document.querySelector('.input').focus();
-
+  searchInput[0].focus()
   // Search Song
   $.ajax({
     method: "GET",
-    url: "https://api.spotify.com/v1/search",
-    headers: headers,
-    data: {
-      "q": searchItem,
-      "type": "track",
-    },
+    url: "/search_track",
+    data: { "searchItem": searchItem },
     success: function (response) {
       // Get artist name
-      console.log(response);
-      var search = JSON.parse(JSON.stringify(response));
+      var search = response.body;
       var trackURI = search.tracks.items[0].uri;
-      //console.log(trackURI); // Dev
+      console.log(trackURI);
 
-      // Add song to queue - Working weird
+      // Add song to queue
       $.ajax({
         method: 'POST',
-        url: 'https://api.spotify.com/v1/me/player/queue?uri=' + trackURI,
-        headers: headers
+        url: '/add_track',
+        data: jQuery.param({ 'trackURI': trackURI })
       })
 
       // Show popup
@@ -142,36 +139,38 @@ function addTrackToQueue(headers, username) {
 }
 
 // Play / Pause player
-function PlayPausePlayer(headers, curr_device_id, playerURL, player) {
-  var playPauseURL = playerURL + (player.isPlaying ? '/pause' : '/play');
-  console.log(player.isPlaying);
-  console.log(playPauseURL);
+function PlayPausePlayer(curr_device_id, player) {
+  /* function PlayPausePlayer(headers, curr_device_id, playerURL, player) { */
+  var play_pause = player.isPlaying ? '/pause' : '/play';
   $.ajax({
     method: 'PUT',
-    url: playPauseURL,
-    headers: headers,
+    url: '/play_pause_player',
     data: {
-      "device_id": curr_device_id
+      'play_pause': play_pause,
+      'device_id': curr_device_id
     },
     // Needs to wait a second, otherwise return the same state
     success: setTimeout(function () {
-      checkIfPlaying(playerURL, headers, player, playPauseBtn);
+      checkIfPlaying(player, playPauseBtn);
+      /* checkIfPlaying(playerURL, headers, player, playPauseBtn); */
     }, 1000)
   })
 }
 
 // Skip back / forward
-function skip(skipURL, headers, curr_device_id, playPauseBtn, playerURL, player) {
+function skip(skipURL, curr_device_id, playPauseBtn, player) {
+  /* function skip(skipURL, headers, curr_device_id, playPauseBtn, playerURL, player) { */
   $.ajax({
     method: 'POST',
-    url: skipURL,
-    headers: headers,
+    url: '/skip',
     data: {
-      "device_id": curr_device_id
+      'skip_form': skipURL,
+      'device_id': curr_device_id
     },
     // Needs to wait a second, otherwise return the same state
     success: setTimeout(function () {
-      checkIfPlaying(playerURL, headers, player, playPauseBtn);
+      checkIfPlaying(player, playPauseBtn);
+      /* checkIfPlaying(playerURL, headers, player, playPauseBtn); */
     }, 1000)
   })
 }

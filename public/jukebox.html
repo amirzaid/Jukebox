@@ -29,12 +29,14 @@
         <div class="help-popup">
             <div class="help-text">
                 RoomID: <span></span>
-                <a class="copy-roomid"><ion-icon name="copy-outline"></ion-icon></a>
+                <a class="copy-roomid">
+                    <ion-icon name="copy-outline"></ion-icon>
+                </a>
             </div>
             <button class="close-help-text">
                 Got it
             </button>
-    </div>
+        </div>
     </div>
 
     <img hidden=true id="image" crossorigin="anonymous"
@@ -76,7 +78,7 @@
             <span class="sr-only"></span>
         </div>
         <p>Loading please wait...</p>
-        <p>Make sure your Spotify player is on</p>    
+        <p>Make sure your Spotify player is on</p>
     </div>
     <!--jquery-->
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
@@ -104,7 +106,7 @@
     <script src="https://www.gstatic.com/firebasejs/7.19.0/firebase-auth.js"></script>
 
     <!--Spotify-->
-    <script src="/socket.io/socket.io.js"></script>
+    <!-- <script src="/socket.io/socket.io.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
     <script src="spotifyRequests.js"></script>
     <script src="main.js" type="module"></script>

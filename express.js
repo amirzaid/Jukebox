@@ -4,7 +4,7 @@ var request = require("request"); // "Request" library
 const querystring = require("querystring");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const { query, Router } = require("express");
+const { query, Router, response } = require("express");
 const path = require("path");
 const http = require('http');
 const admin = require("firebase-admin");
@@ -12,7 +12,6 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 
 const serviceAccount = require("./serviceAccountKey.json");
-const { RSA_NO_PADDING } = require("constants");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -29,6 +28,9 @@ const server = http.createServer(app); // Create a server
 var client_id = process.env.CLIENT_ID; // Your client id
 var client_secret = process.env.CLIENT_SECRET; // Your secret
 var redirect_uri = "http://spotify--jukebox.herokuapp.com/callback"; // Your redirect uri
+var playerURL = 'https://api.spotify.com/v1/me/player'; // Player endpoint url
+var access_token = ''
+var refresh_token = ''
 
 /**
  * Generates a random string containing numbers and letters
@@ -48,18 +50,19 @@ var generateRandomString = function (length) {
 
 var stateKey = "spotify_auth_state";
 
+/* Middleware */
 app
   .use(express.static(path.join(__dirname, "public"))) // Load public files
   .use(cors()) // Allow access to and from outsource api's
   .use(cookieParser()) // Cookie handler
-  .use(express.urlencoded({ extended: true })); // Body-parser - handles post body data
+  .use(express.urlencoded({ extended: true })) // Body-parser - handles post body data
+
+////* Spotify handlers *////
 
 // Authentication request
 app.get("/login", function (req, res) {
   var state = generateRandomString(16);
   res.cookie(stateKey, state);
-  console.log(stateKey);
-  console.log(state);
 
   // your application requests authorization
   var scope = "user-read-private user-read-email user-modify-playback-state user-read-playback-state user-read-recently-played";
@@ -74,16 +77,14 @@ app.get("/login", function (req, res) {
       //show_dialog: false //defult
     })
   );
-
-  //response.send();
 });
 
+//  Spotify callback
 app.get("/callback", (req, res) => {
   // your application requests refresh and access tokens
   // after checking the state parameter
 
   var code = req.query.code || null; // returned from login request
-  // console.log(req.query.code);
   var state = req.query.state || null; // returned from login request
   var storedState = req.cookies ? req.cookies[stateKey] : null;
 
@@ -104,15 +105,13 @@ app.get("/callback", (req, res) => {
         grant_type: "authorization_code", // required
       },
       headers: {
-        Authorization:
-          "Basic " +
-          new Buffer.from(client_id + ":" + client_secret).toString("base64"), // required
+        Authorization: `Basic ${(new Buffer.from(client_id + ':' + client_secret).toString('base64'))}`, // required
       },
       json: true,
     };
     request.post(authOptions, function (error, response, body) {
       if (!error && response.statusCode === 200) {
-        var access_token = body.access_token,
+        access_token = body.access_token,
           refresh_token = body.refresh_token,
           expires_in = body.expires_in;
 
@@ -124,9 +123,7 @@ app.get("/callback", (req, res) => {
 
         // use the access token to access the Spotify Web API
         request.get(options, function (error, response, body) {
-          //console.log(body);
           console.log('body id: ' + body.id);
-          console.log(access_token);
           // Create new room in firebase db
 
           var roomID = generateRandomString(6);
@@ -155,14 +152,12 @@ app.get("/callback", (req, res) => {
   }
 });
 
+// Get refresh token
 app.get('/refresh_token', function (req, res) {
-
   // requesting access token from refresh token
-  console.log('refresh token test: ' + req.query.refresh_token);
-  var refresh_token = req.query.refresh_token;
   var authOptions = {
     url: 'https://accounts.spotify.com/api/token',
-    headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
+    headers: { 'Authorization': `Basic ${(new Buffer.from(client_id + ':' + client_secret).toString('base64'))}` },
     form: {
       grant_type: 'refresh_token',
       refresh_token: refresh_token
@@ -172,7 +167,8 @@ app.get('/refresh_token', function (req, res) {
 
   request.post(authOptions, function (error, response, body) {
     if (!error && response.statusCode === 200) {
-      var access_token = body.access_token;
+      /* var access_token = body.access_token; */
+      access_token = body.access_token;
       res.send({
         'access_token': access_token
       });
@@ -180,7 +176,128 @@ app.get('/refresh_token', function (req, res) {
   });
 });
 
-//check for valid room id
+// add get access token func?
+// add error catcher?
+function getAccessToken() {
+  var authOptions = {
+    url: 'https://accounts.spotify.com/api/token',
+    headers: { 'Authorization': `Basic ${(new Buffer.from(client_id + ':' + client_secret).toString('base64'))}` },
+    form: {
+      grant_type: 'refresh_token',
+      refresh_token: refresh_token
+    },
+    json: true
+  };
+
+  request.post(authOptions, function (error, response, body) {
+    if (!error && response.statusCode === 200) {
+      access_token = body.access_token;
+      console.log(`new access token: ${access_token}`); // log new access token
+    }
+  });
+}
+
+// check if playing
+app.get('/currently_playing', function (req, res) {
+  var authOptions = {
+    url: `${playerURL}/currently-playing`,
+    headers: { 'Authorization': `Bearer ${access_token}` },
+    json: true
+  };
+  request.get(authOptions, (error, response, body) => {
+    res.send(response);
+    if (response.statusCode && response.statusCode === 401) {
+      getAccessToken()
+    }
+  })
+})
+
+// search track
+app.get('/search_track', function (req, res) {
+  var authOptions = {
+    url: 'https://api.spotify.com/v1/search',
+    headers: { 'Authorization': `Bearer ${access_token}` },
+    qs: {
+      "q": req.query.searchItem,
+      "type": 'track'
+    },
+    json: true
+  };
+  request.get(authOptions, (error, response, body) => {
+    res.send(response);
+    if (response.statusCode && response.statusCode === 401) {
+      getAccessToken()
+    }
+  })
+})
+
+// add track to queue
+app.post('/add_track', function (req, res) {
+  var authOptions = {
+    url: `https://api.spotify.com/v1/me/player/queue?uri=${req.body.trackURI}`,
+    headers: { 'Authorization': `Bearer ${access_token}` }
+  };
+  request.post(authOptions, (error, response, body) => {
+    res.send(response);
+    if (response.statusCode && response.statusCode === 401) {
+      getAccessToken()
+    }
+  })
+})
+
+// Play / Pause player
+app.put('/play_pause_player', function (req, res) {
+  var authOptions = {
+    url: `${playerURL}${req.body.play_pause}`,
+    headers: { 'Authorization': `Bearer ${access_token}` },
+    qs: { "device_id": req.body.curr_device_id }
+  };
+  request.put(authOptions, (error, response, body) => {
+    res.send(response);
+    if (response.statusCode && response.statusCode === 401) {
+      getAccessToken()
+    }
+  })
+})
+
+// Skip back / forward
+app.post('/skip', function (req, res) {
+  var authOptions = {
+    url: `${playerURL}${req.body.skip_form}`,
+    headers: { 'Authorization': `Bearer ${access_token}` },
+    qs: { "device_id": req.body.curr_device_id }
+  };
+  request.post(authOptions, (error, response, body) => {
+    res.send(response);
+    if (response.statusCode && response.statusCode === 401) {
+      getAccessToken()
+    }
+  })
+})
+
+////* END - Spotify handlers *////
+
+
+////* Firebase handlers *////
+// Your web app's Firebase configuration
+var firebaseConfig = {
+  apiKey: process.env.API_KEY,
+  authDomain: "jukebox-d932d.firebaseapp.com",
+  databaseURL: "https://jukebox-d932d.firebaseio.com/",
+  projectId: "jukebox-d932d",
+  storageBucket: "jukebox-d932d.appspot.com",
+  messagingSenderId: "831237212121",
+  appId: "1:831237212121:web:61cb4cac1c030340287bc8",
+};
+
+// get firebase config
+app.get('/firebase_config', (req, res) => {
+  res.send(firebaseConfig)
+})
+
+////* DB handlers *////
+
+// Check for valid room id
 app.get('/checkroom', (req, res) => {
   // Look for room with same roomid
   ref.child('rooms').orderByChild('roomID').equalTo(req.query.roomid).once('value', (snapshot) => {
@@ -243,7 +360,11 @@ app.post('/addUserToRoom', (req, res) => {
           room_key: room_key,
           user_key: user_key
         }
-        console.log(user);
+        // Update access and refresh tokens
+        access_token = room.access_token
+        refresh_token = room.refresh_token
+
+        /* console.log(user); */
 
         res.send(200, user); // Send user data to client
         //res.send(200, snapshot.child(room_key).val().access_token);
@@ -259,15 +380,18 @@ app.post('/addUserToRoom', (req, res) => {
 
 //Remove user from room
 app.post('/removeUserFromRoom', (req, res) => {
-  var room_key = req.body.room_key;
-  var user_key = req.body.user_key;
+  var room_key = req.query.room_key;
+  var user_key = req.query.user_key;
+  var uid = req.query.uid;
 
-  //console.log(ref.child(`rooms/${room_key}/paticipants/${user_key}`));
-  //console.log(`rooms/${room_key}/participants/${user_key}`);
+  /* dev - console.log(ref.child(`rooms/${room_key}/paticipants/${user_key}`));
+  console.log(`rooms/${room_key}/participants/${user_key}`); */
   ref.child(`rooms/${room_key}/participants/${user_key}`).remove()
     .then((value) => {
       // Successfuly removed user from room
       console.log('success: ' + value);
+      // Delete current user
+      admin.auth().deleteUser(uid)
       res.send(value);
     })
     .catch((error) => {
@@ -277,6 +401,7 @@ app.post('/removeUserFromRoom', (req, res) => {
     });
 })
 
+// TBD
 app.post('/makeHost', (req, res) => {
   uid = req.body.uid;
   console.log(uid);
@@ -290,11 +415,12 @@ app.post('/makeHost', (req, res) => {
   res.send();
 })
 
-//app.use("/", router);
+////* END - DB handlers *////
+////* END - Firebase handlers *////
+
 const PORT = process.env.PORT || 5000; // Get port
 
 // Set server to listen on PORT
-//app.listen(PORT, () => {
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
