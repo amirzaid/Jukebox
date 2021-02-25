@@ -1,10 +1,10 @@
 # Jukebox
 Jukebox is a web app that let's you create a room where you and your friends can add songs to a host Spotify playlist.
 
-This app runs on a node.js based server that handles o-auth for spotify login and access to the firebase database.
+This app runs on a node.js based server that handles requests to the spotify api and to the firebase database and user management.
 
 ### Features:
-* Song player
+* Song player actions (**The app does not serve as a player itself and depends on a device playing a spotify playlist)
 * Search songs in the spotify's library and add them to the playing queue
 
 ### Backend:
@@ -13,7 +13,7 @@ This app runs on a node.js based server that handles o-auth for spotify login an
 
 ### Frontend:
 * vanilla.js
-* jquery
+* jQuery
 
 ### DB:
 * firebase
