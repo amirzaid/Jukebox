@@ -12,7 +12,6 @@ This app runs on a node.js based server that handles requests to the spotify api
 * express.JS
 
 ### Frontend:
-* vanilla.js
 * jQuery
 
 ### DB:
